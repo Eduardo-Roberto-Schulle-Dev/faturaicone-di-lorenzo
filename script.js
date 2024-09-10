@@ -1,278 +1,225 @@
-var modoEscuroAtivado = false;
-var ultimoCalculo = null;
+var isDarkModeActive = false;
+var lastCalculation = null;
 let currentInput = '';
-    let operator = null;
-    let firstOperand = null;
+let operator = null;
+let firstOperand = null;
 
-
-    function appendNumber(number) {
-        if (currentInput === '0' && number !== '.') {
-            currentInput = number;
-        } else {
-            currentInput += number;
-        }
-        updateScreen();
-    }
-
-    function setOperator(op) {
-        if (operator !== null) {
-            calculateResult();
-        }
-        firstOperand = parseFloat(currentInput);
-        operator = op;
-        currentInput = '';
-    }
-
-    function calculateResult() {
-        if (operator === null || currentInput === '') return;
-        const secondOperand = parseFloat(currentInput);
-        let result;
-        switch (operator) {
-            case '+':
-                result = firstOperand + secondOperand;
-                break;
-            case '-':
-                result = firstOperand - secondOperand;
-                break;
-            case '*':
-                result = firstOperand * secondOperand;
-                break;
-            case '/':
-                result = firstOperand / secondOperand;
-                break;
-            default:
-                return;
-        }
-        currentInput = result.toString();
-        operator = null;
-        firstOperand = null;
-        updateScreen();
-    }
-
-    function clearScreen() {
-        currentInput = '';
-        operator = null;
-        firstOperand = null;
-        updateScreen();
-    }
-
-    function updateScreen() {
-        document.getElementById('calculator-screen').innerText = currentInput || '0';
-    }
-
-    function toggleCalculator() {
-        const calculator = document.getElementById('calculator');
-        const isVisible = calculator.style.display === 'block';
-        calculator.style.display = isVisible ? 'none' : 'block';
-    }
-
-function exibirModalSobre() {
-    var modalSobre = document.getElementById('modalSobre');
-    modalSobre.style.display = 'block';
-}
-
-function fecharModalSobre() {
-    var modalSobre = document.getElementById('modalSobre');
-    modalSobre.style.display = 'none';
-}
-
-function carregarUltimoCalculo() {
-    var ultimoCalculoArmazenado = localStorage.getItem('ultimoCalculo');
-    if (ultimoCalculoArmazenado !== null) {
-        ultimoCalculo = ultimoCalculoArmazenado;
-        exibirResultadoAnterior();
-    }
-}
-
-function salvarUltimoCalculo(resultadoHTML) {
-    ultimoCalculo = resultadoHTML;
-    localStorage.setItem('ultimoCalculo', resultadoHTML);
-}
-
-
-function exibirModal() {
-    var modal = document.getElementById('modal');
-    var resultadoAnterior = document.getElementById('resultadoAnterior');
-
-    if (ultimoCalculo) {
-        resultadoAnterior.innerHTML = ultimoCalculo;
+function appendNumber(number) {
+    if (currentInput === '0' && number !== '.') {
+        currentInput = number;
     } else {
-        resultadoAnterior.innerHTML = 'Você não realizou nenhum cálculo ainda.';
+        currentInput += number;
+    }
+    updateScreen();
+}
+
+function setOperator(op) {
+    if (operator !== null) {
+        calculateResult();
+    }
+    firstOperand = parseFloat(currentInput);
+    operator = op;
+    currentInput = '';
+}
+
+function calculateResult() {
+    if (operator === null || currentInput === '') return;
+    const secondOperand = parseFloat(currentInput);
+    let result;
+    switch (operator) {
+        case '+':
+            result = firstOperand + secondOperand;
+            break;
+        case '-':
+            result = firstOperand - secondOperand;
+            break;
+        case '*':
+            result = firstOperand * secondOperand;
+            break;
+        case '/':
+            result = firstOperand / secondOperand;
+            break;
+        default:
+            return;
+    }
+    currentInput = result.toString();
+    operator = null;
+    firstOperand = null;
+    updateScreen();
+}
+
+function clearScreen() {
+    currentInput = '';
+    operator = null;
+    firstOperand = null;
+    updateScreen();
+}
+
+function updateScreen() {
+    document.getElementById('calculator-screen').innerText = currentInput || '0';
+}
+
+function toggleCalculator() {
+    const calculator = document.getElementById('calculator');
+    const isVisible = calculator.style.display === 'block';
+    calculator.style.display = isVisible ? 'none' : 'block';
+}
+
+function showAboutModal() {
+    var aboutModal = document.getElementById('modalSobre');
+    aboutModal.style.display = 'block';
+}
+
+function closeAboutModal() {
+    var aboutModal = document.getElementById('modalSobre');
+    aboutModal.style.display = 'none';
+}
+
+function loadLastCalculation() {
+    var storedLastCalculation = localStorage.getItem('lastCalculation');
+    if (storedLastCalculation !== null) {
+        lastCalculation = storedLastCalculation;
+        displayPreviousResult();
+    }
+}
+
+function saveLastCalculation(resultHTML) {
+    lastCalculation = resultHTML;
+    localStorage.setItem('lastCalculation', resultHTML);
+}
+
+function showModal() {
+    var modal = document.getElementById('modal');
+    var previousResult = document.getElementById('previousResult');
+
+    if (lastCalculation) {
+        previousResult.innerHTML = lastCalculation;
+    } else {
+        previousResult.innerHTML = 'You have not made any calculations yet.';
     }
 
     modal.style.display = 'block';
 }
 
-
-function fecharModal() {
+function closeModal() {
     var modal = document.getElementById('modal');
     modal.style.display = 'none';
 }
 
-function exibirResultadoAnterior() {
-  if (ultimoCalculo) {
-    document.getElementById('resultadoAnterior').innerHTML = ultimoCalculo;
-  }
+function displayPreviousResult() {
+    if (lastCalculation) {
+        document.getElementById('previousResult').innerHTML = lastCalculation;
+    }
 }
 
-function exportarParaExcel() {
-    var valorPIS = parseFloat(document.getElementById('valorPIS').value.replace('.', '').replace(',', '.'));
-    var valorCOFINS = parseFloat(document.getElementById('valorCOFINS').value.replace('.', '').replace(',', '.'));
-    var valorSISCOMEX = parseFloat(document.getElementById('valorSISCOMEX').value.replace('.', '').replace(',', '.'));
-    var valorNumerario = parseFloat(document.getElementById('valorNumerario').value.replace('.', '').replace(',', '.'));
-    var valorVariacao = parseFloat(document.getElementById('valorVariacao').value.replace('.', '').replace(',', '.'));
-    var quantidadeFornecedores = parseInt(document.getElementById('quantidadeFornecedores').value);
+function exportToExcel() {
+    var pisValue = parseFloat(document.getElementById('pisValue').value.replace('.', '').replace(',', '.'));
+    var cofinsValue = parseFloat(document.getElementById('cofinsValue').value.replace('.', '').replace(',', '.'));
+    var siscomexValue = parseFloat(document.getElementById('siscomexValue').value.replace('.', '').replace(',', '.'));
+    var cashValue = parseFloat(document.getElementById('cashValue').value.replace('.', '').replace(',', '.'));
+    var variationValue = parseFloat(document.getElementById('variationValue').value.replace('.', '').replace(',', '.'));
+    var supplierCount = parseInt(document.getElementById('supplierCount').value);
 
-    if (isNaN(valorPIS) || isNaN(valorCOFINS) || isNaN(valorSISCOMEX) || isNaN(valorNumerario) || isNaN(valorVariacao) || quantidadeFornecedores === 0) {
-        alert('Preencha todos os campos corretamente.');
+    if (isNaN(pisValue) || isNaN(cofinsValue) || isNaN(siscomexValue) || isNaN(cashValue) || isNaN(variationValue) || supplierCount === 0) {
+        alert('Please fill in all fields correctly.');
         return;
     }
 
-    var dados = [];
-    for (var i = 1; i <= quantidadeFornecedores; i++) {
-        var nomeFornecedor = document.getElementById('fornecedorNome' + i).value;
-        var percentualFornecedor = parseFloat(document.getElementById('fornecedorPercentual' + i).value.replace(',', '.'));
+    var data = [];
+    for (var i = 1; i <= supplierCount; i++) {
+        var supplierName = document.getElementById('supplierName' + i).value;
+        var supplierPercentage = parseFloat(document.getElementById('supplierPercentage' + i).value.replace(',', '.'));
 
-        if (nomeFornecedor.trim() === '' || isNaN(percentualFornecedor)) {
-            alert('Preencha corretamente as informações do fornecedor ' + i);
+        if (supplierName.trim() === '' || isNaN(supplierPercentage)) {
+            alert('Please fill in the information for supplier ' + i + ' correctly.');
             return;
         }
 
-        var pisFornecedor = (percentualFornecedor / 100) * valorPIS;
-        var cofinsFornecedor = (percentualFornecedor / 100) * valorCOFINS;
-        var siscomexFornecedor = (percentualFornecedor / 100) * valorSISCOMEX;
-        var numerarioFornecedor = (percentualFornecedor / 100) * valorNumerario;
-        var variacaoFornecedor = (percentualFornecedor / 100) * valorVariacao;
+        var pisSupplier = (supplierPercentage / 100) * pisValue;
+        var cofinsSupplier = (supplierPercentage / 100) * cofinsValue;
+        var siscomexSupplier = (supplierPercentage / 100) * siscomexValue;
+        var cashSupplier = (supplierPercentage / 100) * cashValue;
+        var variationSupplier = (supplierPercentage / 100) * variationValue;
 
-        dados.push({
-            'Nome do fornecedor': nomeFornecedor,
-            'Percentual (%)': percentualFornecedor + '%',
-            'PIS': pisFornecedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            'COFINS': cofinsFornecedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            'SISCOMEX': siscomexFornecedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            'NUMERARIO': numerarioFornecedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            'VARIAÇÃO': variacaoFornecedor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        data.push({
+            'Supplier Name': supplierName,
+            'Percentage (%)': supplierPercentage + '%',
+            'PIS': pisSupplier.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            'COFINS': cofinsSupplier.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            'SISCOMEX': siscomexSupplier.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            'CASH': cashSupplier.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            'VARIATION': variationSupplier.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
         });
     }
 
     var wb = XLSX.utils.book_new();
-    var wsDados = XLSX.utils.json_to_sheet(dados);
-    XLSX.utils.book_append_sheet(wb, wsDados, 'Resultados dos cálculos');
-    
-    wsDados['!cols'] = [{ wpx: 200 }, { wpx: 120 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }];
+    var wsData = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, wsData, 'Calculation Results');
 
-    var wsResumo = XLSX.utils.json_to_sheet([{
-        'Total PIS': valorPIS.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        'Total COFINS': valorCOFINS.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        'Total SISCOMEX': valorSISCOMEX.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        'Total NUMERARIO': valorNumerario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        'Total VARIAÇÃO': valorVariacao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-        'Qtd. Fornecedores': quantidadeFornecedores
+    wsData['!cols'] = [{ wpx: 200 }, { wpx: 120 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }];
+
+    var wsSummary = XLSX.utils.json_to_sheet([{
+        'Total PIS': pisValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Total COFINS': cofinsValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Total SISCOMEX': siscomexValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Total CASH': cashValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Total VARIATION': variationValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Supplier Count': supplierCount
     }]);
-    XLSX.utils.book_append_sheet(wb, wsResumo, 'Informações da entrada');
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Input Information');
 
-    wsResumo['!cols'] = [{ wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 160 }];
+    wsSummary['!cols'] = [{ wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 110 }, { wpx: 160 }];
 
-
-    var nomeDoArquivo = 'Resultados_CalculoEntradaDI.xlsx';
-    XLSX.writeFile(wb, nomeDoArquivo);
+    var fileName = 'Calculation_Input_Results.xlsx';
+    XLSX.writeFile(wb, fileName);
 }
 
-function calcularValores() {
-    var valorPIS = parseFloat(document.getElementById('valorPIS').value.replace(',', '.'));
-    var valorCOFINS = parseFloat(document.getElementById('valorCOFINS').value.replace(',', '.'));
-    var valorSISCOMEX = parseFloat(document.getElementById('valorSISCOMEX').value.replace(',', '.'));
-    var valorNumerario = parseFloat(document.getElementById('valorNumerario').value.replace(',', '.'));
-    var valorVariacao = parseFloat(document.getElementById('valorVariacao').value.replace(',', '.'));
+function calculateValues() {
+    var pisValue = parseFloat(document.getElementById('pisValue').value.replace(',', '.'));
+    var cofinsValue = parseFloat(document.getElementById('cofinsValue').value.replace(',', '.'));
+    var siscomexValue = parseFloat(document.getElementById('siscomexValue').value.replace(',', '.'));
+    var cashValue = parseFloat(document.getElementById('cashValue').value.replace(',', '.'));
+    var variationValue = parseFloat(document.getElementById('variationValue').value.replace(',', '.'));
 
-    var distribuicoes = [];
-    var quantidadeFornecedores = parseInt(document.getElementById('quantidadeFornecedores').value);
-    for (var i = 1; i <= quantidadeFornecedores; i++) {
-        var nome = document.getElementById('fornecedorNome' + i).value;
-        var percentual = parseFloat(document.getElementById('fornecedorPercentual' + i).value.replace(',', '.'));
-        if (nome.trim() === '' || isNaN(percentual)) {
-            alert('Preencha corretamente as informações do fornecedor ' + i);
+    var distributions = [];
+    var supplierCount = parseInt(document.getElementById('supplierCount').value);
+    for (var i = 1; i <= supplierCount; i++) {
+        var name = document.getElementById('supplierName' + i).value;
+        var percentage = parseFloat(document.getElementById('supplierPercentage' + i).value.replace(',', '.'));
+        if (name.trim() === '' || isNaN(percentage)) {
+            alert('Please fill in the supplier information ' + i + ' correctly.');
             return;
         }
-        distribuicoes.push({ nome: nome, percentual: percentual });
+        distributions.push({ name: name, percentage: percentage });
     }
 
-    var resultadoHTML = '';
-    for (var j = 0; j < distribuicoes.length; j++) {
-        var distribuicao = distribuicoes[j];
-        var pisFornecedor = (distribuicao.percentual / 100) * valorPIS;
-        var cofinsFornecedor = (distribuicao.percentual / 100) * valorCOFINS;
-        var siscomexFornecedor = (distribuicao.percentual / 100) * valorSISCOMEX;
-        var numerarioFornecedor = (distribuicao.percentual / 100) * valorNumerario;
-        var variacaoFornecedor = (distribuicao.percentual / 100) * valorVariacao;
+    var resultHTML = '';
+    for (var j = 0; j < distributions.length; j++) {
+        var distribution = distributions[j];
+        var pisSupplier = (distribution.percentage / 100) * pisValue;
+        var cofinsSupplier = (distribution.percentage / 100) * cofinsValue;
+        var siscomexSupplier = (distribution.percentage / 100) * siscomexValue;
+        var cashSupplier = (distribution.percentage / 100) * cashValue;
+        var variationSupplier = (distribution.percentage / 100) * variationValue;
 
-        pisFornecedor = pisFornecedor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        cofinsFornecedor = cofinsFornecedor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        siscomexFornecedor = siscomexFornecedor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        numerarioFornecedor = numerarioFornecedor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        variacaoFornecedor = variacaoFornecedor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        pisSupplier = pisSupplier.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        cofinsSupplier = cofinsSupplier.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        siscomexSupplier = siscomexSupplier.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        cashSupplier = cashSupplier.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        variationSupplier = variationSupplier.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        resultadoHTML += '<div class="resultado-item">';
-        resultadoHTML += '<p class="fornecedor-nome"> <b> Fornecedor: ' + distribuicao.nome + '  </b> </p>';
-        resultadoHTML += '<div class="resultado-detalhes">';
-        resultadoHTML += '<p class="resultado-detalhe"> <b> PIS: </b> ' + pisFornecedor + ' </p>';
-        resultadoHTML += '<p class="resultado-detalhe"> <b> COFINS: </b> ' + cofinsFornecedor + ' </p>';
-        resultadoHTML += '<p class="resultado-detalhe"> <b> SISCOMEX: </b> ' + siscomexFornecedor + ' </p>';
-        resultadoHTML += '<p class="resultado-detalhe"> <b> NUMERARIO: </b> ' + numerarioFornecedor + ' </p>';
-        resultadoHTML += '<p class="resultado-detalhe"> <b> VARIAÇÃO: </b> ' + variacaoFornecedor + ' </p>';
-        resultadoHTML += '</div></div>';
+        resultHTML += '<p><strong>' + distribution.name + ' (' + distribution.percentage.toFixed(2) + '%)</strong><br>';
+        resultHTML += 'PIS: ' + pisSupplier + '<br>';
+        resultHTML += 'COFINS: ' + cofinsSupplier + '<br>';
+        resultHTML += 'SISCOMEX: ' + siscomexSupplier + '<br>';
+        resultHTML += 'CASH: ' + cashSupplier + '<br>';
+        resultHTML += 'VARIATION: ' + variationSupplier + '</p>';
     }
 
-    salvarUltimoCalculo(resultadoHTML);
-
-    document.getElementById('resultado').innerHTML = resultadoHTML;
-
-    if (validarInformacoes() && validarFornecedores()) {
-        document.getElementById('exportarExcelButton').style.display = 'block';
-    }
+    document.getElementById('result').innerHTML = resultHTML;
+    saveLastCalculation(resultHTML);
 }
 
-function validarInformacoes() {
-    var valorPIS = parseFloat(document.getElementById('valorPIS').value.replace('.', '').replace(',', '.'));
-    var valorCOFINS = parseFloat(document.getElementById('valorCOFINS').value.replace('.', '').replace(',', '.'));
-    var valorSISCOMEX = parseFloat(document.getElementById('valorSISCOMEX').value.replace('.', '').replace(',', '.'));
-    var valorNumerario = parseFloat(document.getElementById('valorNumerario').value.replace('.', '').replace(',', '.'));
-    var valorVariacao = parseFloat(document.getElementById('valorVariacao').value.replace('.', '').replace(',', '.'));
-    var quantidadeFornecedores = parseInt(document.getElementById('quantidadeFornecedores').value);
-
-    if (isNaN(valorPIS) || isNaN(valorCOFINS) || isNaN(valorSISCOMEX) || isNaN(valorNumerario) || isNaN(valorVariacao) || quantidadeFornecedores === 0) {
-        alert('Preencha todos os campos corretamente.');
-        return false;
-    }
-
-    return true;
-}
-
-function validarFornecedores() {
-    var quantidadeFornecedores = parseInt(document.getElementById('quantidadeFornecedores').value);
-    for (var i = 1; i <= quantidadeFornecedores; i++) {
-        var nome = document.getElementById('fornecedorNome' + i).value;
-        var percentual = parseFloat(document.getElementById('fornecedorPercentual' + i).value.replace(',', '.'));
-        if (nome.trim() === '' || isNaN(percentual)) {
-            alert('Preencha corretamente as informações do fornecedor ' + i);
-            return false;
-        }
-    }
-    return true;
-}
-
-function limparCampos() {
-    document.getElementById('valorPIS').value = '';
-    document.getElementById('valorCOFINS').value = '';
-    document.getElementById('valorSISCOMEX').value = '';
-    document.getElementById('valorNumerario').value = '';
-    document.getElementById('valorVariacao').value = '';
-    document.getElementById('quantidadeFornecedores').value = '0';
-    document.getElementById('fornecedoresFields').innerHTML = '';
-    document.getElementById('resultado').innerHTML = '';
-
-    document.getElementById('exportarExcelButton').style.display = 'none';
-}
 
 document.getElementById('quantidadeFornecedores').addEventListener('change', function() {
     var fornecedoresFields = document.getElementById('fornecedoresFields');
